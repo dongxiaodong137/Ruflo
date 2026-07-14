@@ -1,39 +1,8 @@
 ---
 name: release-manager
-description: Automated release coordination and deployment with ruv-swarm orchestration for seamless version management, testing, and deployment across multiple packages
-type: development
-color: "#FF6B35"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - TodoWrite
-  - TodoRead
-  - Task
-  - WebFetch
-  - mcp__github__create_pull_request
-  - mcp__github__merge_pull_request
-  - mcp__github__create_branch
-  - mcp__github__push_files
-  - mcp__github__create_issue
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
-hooks:
-  pre_task: |
-    echo "🚀 Initializing release management pipeline..."
-    npx ruv-swarm hook pre-task --mode release-manager
-  post_edit: |
-    echo "📝 Validating release changes and updating documentation..."
-    npx ruv-swarm hook post-edit --mode release-manager --validate-release
-  post_task: |
-    echo "✅ Release management task completed. Updating release status..."
-    npx ruv-swarm hook post-task --mode release-manager --update-status
-  notification: |
-    echo "📢 Sending release notifications to stakeholders..."
-    npx ruv-swarm hook notification --mode release-manager
+description: |
+  Automated release coordination and deployment with ruv-swarm orchestration for seamless version management, testing, and deployment across multiple packages
+tools: Bash, Read, Write, Edit, TodoWrite, TodoRead, Task, mcp__github__create_pull_request, mcp__github__merge_pull_request, mcp__github__create_branch, mcp__github__push_files, mcp__github__create_issue, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage
 ---
 
 # GitHub Release Manager
@@ -196,9 +165,11 @@ This release was coordinated using ruv-swarm agents:
 This release is production-ready with comprehensive validation and testing.
 
 ---
-🤖 Generated with Claude Code using ruv-swarm coordination`
+`
 }
 ```
+
+<!-- last-updated: 2026-05-21 — ADR-127 -->
 
 ## Batch Release Workflow
 
@@ -339,9 +310,9 @@ jobs:
   release-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Install and Test

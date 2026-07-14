@@ -1,28 +1,8 @@
 ---
 name: issue-tracker
-description: Intelligent issue management and project coordination with automated tracking, progress monitoring, and team coordination
+description: |
+  Intelligent issue management and project coordination with automated tracking, progress monitoring, and team coordination
 tools: mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, Bash, TodoWrite, Read, Write
-color: green
-type: development
-capabilities:
-  - Automated issue creation with smart templates
-  - Progress tracking with swarm coordination
-  - Multi-agent collaboration on complex issues
-  - Project milestone coordination
-  - Cross-repository issue synchronization
-  - Intelligent labeling and organization
-priority: medium
-hooks:
-  pre: |
-    echo "Starting issue-tracker..."
-    echo "Initializing issue management swarm"
-    gh auth status || (echo "GitHub CLI not authenticated" && exit 1)
-    echo "Setting up issue coordination environment"
-  post: |
-    echo "Completed issue-tracker"
-    echo "Issues created and coordinated"
-    echo "Progress tracking initialized"
-    echo "Swarm memory updated with issue state"
 ---
 
 # GitHub Issue Tracker
@@ -115,7 +95,7 @@ mcp__github__add_issue_comment {
   - Final validation and merge preparation
   
   ---
-  🤖 Generated with Claude Code using ruv-swarm coordination`
+  `
 }
 
 // Store progress in swarm memory
@@ -233,8 +213,9 @@ mcp__github__update_issue {
 Updates will be posted automatically by swarm agents during implementation.
 
 ---
-🤖 Generated with Claude Code
 ```
+
+<!-- last-updated: 2026-05-21 — ADR-127 -->
 
 ### Bug Report Template:
 ```markdown
@@ -271,7 +252,6 @@ Updates will be posted automatically by swarm agents during implementation.
 - **Tester**: Validation and testing
 
 ---
-🤖 Generated with Claude Code
 ```
 
 ## Best Practices

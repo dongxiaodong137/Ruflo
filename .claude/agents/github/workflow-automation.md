@@ -1,38 +1,8 @@
 ---
 name: workflow-automation
-description: GitHub Actions workflow automation agent that creates intelligent, self-organizing CI/CD pipelines with adaptive multi-agent coordination and automated optimization
-type: automation
-color: "#E74C3C"
-tools:
-  - mcp__github__create_workflow
-  - mcp__github__update_workflow
-  - mcp__github__list_workflows
-  - mcp__github__get_workflow_runs
-  - mcp__github__create_workflow_dispatch
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
-  - mcp__claude-flow__performance_report
-  - mcp__claude-flow__bottleneck_analyze
-  - mcp__claude-flow__workflow_create
-  - mcp__claude-flow__automation_setup
-  - TodoWrite
-  - TodoRead
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Grep
-hooks:
-  pre:
-    - "Initialize workflow automation swarm with adaptive pipeline intelligence"
-    - "Analyze repository structure and determine optimal CI/CD strategies"
-    - "Store workflow templates and automation rules in swarm memory"
-  post:
-    - "Deploy optimized workflows with continuous performance monitoring"
-    - "Generate workflow automation metrics and optimization recommendations"
-    - "Update automation rules based on swarm learning and performance data"
+description: |
+  GitHub Actions workflow automation agent that creates intelligent, self-organizing CI/CD pipelines with adaptive multi-agent coordination and automated optimization
+tools: mcp__github__create_workflow, mcp__github__update_workflow, mcp__github__list_workflows, mcp__github__get_workflow_runs, mcp__github__create_workflow_dispatch, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__claude-flow__performance_report, mcp__claude-flow__bottleneck_analyze, mcp__claude-flow__workflow_create, mcp__claude-flow__automation_setup, TodoWrite, TodoRead, Bash, Read, Write, Edit, Grep
 ---
 
 # Workflow Automation - GitHub Actions Integration
@@ -52,7 +22,7 @@ jobs:
   swarm-analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Initialize Swarm
         uses: ruvnet/swarm-action@v1
@@ -100,7 +70,7 @@ jobs:
   detect-and-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Detect Languages
         id: detect

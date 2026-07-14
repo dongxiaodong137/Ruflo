@@ -1,17 +1,19 @@
 {
+  "model": "claude-opus-4-7",
+  "_comment_skillListingBudgetFraction": "#1834 — repo has 367 SKILL.md files (5x duplicates of common skills) across .agents/skills, .claude/skills, archive/v2/.claude/skills, v3/@claude-flow/{cli,mcp}/.claude/skills. With Claude Code's default 1% budget, ~378 descriptions get truncated. Bumping to 6% covers the actual usage (5.5%). Long-term fix is to prune the duplicates and archive paths (see #1834).",
+  "skillListingBudgetFraction": 0.06,
+  "customInstructions": "Follow the project's CLAUDE.md guidelines. Use concurrent execution for all operations. Prioritize v3 implementation with security-first development, 15-agent swarm coordination, phased performance optimization, and cross-platform helper automation.",
   "env": {
-    "CLAUDE_FLOW_AUTO_COMMIT": "false",
-    "CLAUDE_FLOW_AUTO_PUSH": "false",
-    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
-    "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_FLOW_V3_ENABLED": "true",
+    "CLAUDE_FLOW_HOOKS_ENABLED": "true"
   },
   "permissions": {
     "allow": [
-      "Bash(npx claude-flow:*)",
-      "Bash(npm run lint)",
-      "Bash(npm run test:*)",
+      "Bash(npx @claude-flow*)",
+      "Bash(npx claude-flow*)",
+      "Bash(node .claude/*)",
+      "Bash(npm run:*)",
       "Bash(npm test:*)",
       "Bash(git status)",
       "Bash(git diff:*)",
@@ -28,9 +30,15 @@
       "Bash(node:*)",
       "Bash(which:*)",
       "Bash(pwd)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npx:*)",
+      "mcp__claude-flow__*",
+      "mcp__ruv-swarm__*",
+      "mcp__flow-nexus__*"
     ],
     "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
       "Bash(rm -rf /)"
     ]
   },
@@ -41,36 +49,69 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-command --command '{}' --validate-safety true --prepare-resources true"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" pre-bash",
+            "timeout": 5000
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-command --command '{}' --track-metrics true --store-results true"
-          }
-        ]
-      },
-      {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-edit --file '{}' --format true --update-memory true"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" post-edit",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" route",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" session-restore",
+            "timeout": 15000
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/auto-memory-hook.mjs\" import",
+            "timeout": 8000
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" session-end",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/auto-memory-hook.mjs\" sync",
+            "timeout": 10000
           }
         ]
       }
@@ -81,7 +122,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/bin/bash -c 'INPUT=$(cat); CUSTOM=$(echo \"$INPUT\" | jq -r \".custom_instructions // \\\"\\\"\"); echo \"🔄 PreCompact Guidance:\"; echo \"📋 IMPORTANT: Review CLAUDE.md in project root for:\"; echo \"   • 54 available agents and concurrent usage patterns\"; echo \"   • Swarm coordination strategies (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology workflows with batchtools optimization\"; echo \"   • Critical concurrent execution rules (GOLDEN RULE: 1 MESSAGE = ALL OPERATIONS)\"; if [ -n \"$CUSTOM\" ]; then echo \"🎯 Custom compact instructions: $CUSTOM\"; fi; echo \"✅ Ready for compact operation\"'"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" compact-manual"
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" session-end",
+            "timeout": 5000
           }
         ]
       },
@@ -90,26 +136,150 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/bin/bash -c 'echo \"🔄 Auto-Compact Guidance (Context Window Full):\"; echo \"📋 CRITICAL: Before compacting, ensure you understand:\"; echo \"   • All 54 agents available in .claude/agents/ directory\"; echo \"   • Concurrent execution patterns from CLAUDE.md\"; echo \"   • Batchtools optimization for 300% performance gains\"; echo \"   • Swarm coordination strategies for complex tasks\"; echo \"⚡ Apply GOLDEN RULE: Always batch operations in single messages\"; echo \"✅ Auto-compact proceeding with full agent context\"'"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" compact-auto"
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" session-end",
+            "timeout": 6000
           }
         ]
       }
     ],
-    "Stop": [
+    "SubagentStop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true"
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/helpers/hook-handler.cjs\" post-task",
+            "timeout": 5000
           }
         ]
       }
     ]
   },
-  "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm"],
+  "attribution": {
+    "commit": "Co-Authored-By: RuFlo <ruv@ruv.net>",
+    "pr": "\ud83e\udd16 Generated with [RuFlo](https://github.com/ruvnet/ruflo)"
+  },
+  "claudeFlow": {
+    "version": "3.6.11",
+    "enabled": true,
+    "modelPreferences": {
+      "default": "claude-opus-4-7",
+      "routing": "claude-haiku-4-5-20251001"
+    },
+    "agentTeams": {
+      "enabled": true,
+      "teammateMode": "auto",
+      "taskListEnabled": true,
+      "mailboxEnabled": true,
+      "coordination": {
+        "autoAssignOnIdle": true,
+        "trainPatternsOnComplete": true,
+        "notifyLeadOnComplete": true,
+        "sharedMemoryNamespace": "agent-teams"
+      },
+      "hooks": {
+        "teammateIdle": {
+          "enabled": true,
+          "autoAssign": true,
+          "checkTaskList": true
+        },
+        "taskCompleted": {
+          "enabled": true,
+          "trainPatterns": true,
+          "notifyLead": true
+        }
+      }
+    },
+    "swarm": {
+      "topology": "hierarchical-mesh",
+      "maxAgents": 15
+    },
+    "memory": {
+      "backend": "hybrid",
+      "enableHNSW": true,
+      "learningBridge": { "enabled": true },
+      "memoryGraph": { "enabled": true },
+      "agentScopes": { "enabled": true }
+    },
+    "neural": {
+      "enabled": true
+    },
+    "daemon": {
+      "autoStart": true,
+      "workers": [
+        "map",
+        "audit",
+        "optimize",
+        "consolidate",
+        "testgaps",
+        "ultralearn",
+        "deepdive",
+        "document",
+        "refactor",
+        "benchmark"
+      ],
+      "schedules": {
+        "audit": { "interval": "1h", "priority": "critical" },
+        "optimize": { "interval": "30m", "priority": "high" },
+        "consolidate": { "interval": "2h", "priority": "low" },
+        "document": { "interval": "1h", "priority": "normal" },
+        "deepdive": { "interval": "4h", "priority": "normal" },
+        "ultralearn": { "interval": "1h", "priority": "normal" }
+      }
+    },
+    "learning": {
+      "enabled": true,
+      "autoTrain": true,
+      "patterns": ["coordination", "optimization", "prediction"],
+      "retention": {
+        "shortTerm": "24h",
+        "longTerm": "30d"
+      }
+    },
+    "adr": {
+      "autoGenerate": true,
+      "directory": "/docs/adr",
+      "template": "madr"
+    },
+    "ddd": {
+      "trackDomains": true,
+      "validateBoundedContexts": true,
+      "directory": "/docs/ddd"
+    },
+    "security": {
+      "autoScan": true,
+      "scanOnEdit": true,
+      "cveCheck": true,
+      "threatModel": true
+    }
+  },
+  "agents": {
+    "source": ".claude/agents",
+    "customAgents": []
+  },
+  "skills": {
+    "source": ".claude/commands",
+    "enabled": true
+  },
   "statusLine": {
     "type": "command",
-    "command": ".claude/statusline-command.sh"
-  }
+    "command": "sh -c 'exec node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/statusline.cjs\"'"
+  },
+  "mcpServers": {
+    "claude-flow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "ruflo@latest",
+        "mcp",
+        "start"
+      ]
+    }
+  },
+  "enabledMcpjsonServers": [
+    "claude-flow"
+  ]
 }

@@ -1,33 +1,8 @@
 ---
 name: swarm-issue
-description: GitHub issue-based swarm coordination agent that transforms issues into intelligent multi-agent tasks with automatic decomposition and progress tracking
-type: coordination
-color: "#FF6B35"
-tools:
-  - mcp__github__get_issue
-  - mcp__github__create_issue
-  - mcp__github__update_issue
-  - mcp__github__list_issues
-  - mcp__github__create_issue_comment
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
-  - TodoWrite
-  - TodoRead
-  - Bash
-  - Grep
-  - Read
-  - Write
-hooks:
-  pre:
-    - "Initialize swarm coordination system for GitHub issue management"
-    - "Analyze issue context and determine optimal swarm topology"
-    - "Store issue metadata in swarm memory for cross-agent access"
-  post:
-    - "Update issue with swarm progress and agent assignments"
-    - "Create follow-up tasks based on swarm analysis results"
-    - "Generate comprehensive swarm coordination report"
+description: |
+  GitHub issue-based swarm coordination agent that transforms issues into intelligent multi-agent tasks with automatic decomposition and progress tracking
+tools: mcp__github__get_issue, mcp__github__create_issue, mcp__github__update_issue, mcp__github__list_issues, mcp__github__create_issue_comment, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, TodoWrite, TodoRead, Bash, Grep, Read, Write
 ---
 
 # Swarm Issue - Issue-Based Swarm Coordination
@@ -291,9 +266,12 @@ jobs:
         uses: ruvnet/swarm-action@v1
         with:
           command: |
-            if [[ "${{ github.event.label.name }}" == "swarm-ready" ]]; then
+            LABEL_NAME_FILE=$(mktemp)
+            printf '%s' "${{ github.event.label.name }}" > "$LABEL_NAME_FILE"
+            if grep -qx 'swarm-ready' "$LABEL_NAME_FILE"; then
               npx ruv-swarm github issue-init ${{ github.event.issue.number }}
             fi
+            rm -f "$LABEL_NAME_FILE"
 ```
 
 ### Issue Board Integration
