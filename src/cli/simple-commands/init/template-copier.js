@@ -95,6 +95,19 @@ export async function copyTemplates(targetDir, options = {}) {
         if (await copyFile(settingsPath, settingsDest, options)) {
           results.copiedFiles.push('.claude/settings.json');
         }
+
+        // Copy statusline script
+        const statuslineSource = join(templatesDir, 'statusline-command.sh');
+        const statuslineDest = join(claudeDir, 'statusline-command.sh');
+        if (existsSync(statuslineSource)) {
+          if (await copyFile(statuslineSource, statuslineDest, options)) {
+            // Make executable
+            if (!options.dryRun) {
+              await fs.chmod(statuslineDest, 0o755);
+            }
+            results.copiedFiles.push('.claude/statusline-command.sh');
+          }
+        }
       } else if (!options.dryRun) {
         // Still create the directory even if skipping settings
         await fs.mkdir(claudeDir, { recursive: true });
@@ -535,12 +548,7 @@ async function getTemplateContent(templatePath) {
     'claude-flow-universal': async () => {
       return await fs.readFile(join(__dirname, 'templates', 'claude-flow-universal'), 'utf8');
     },
-    'claude-flow.bat': async () => {
-      return await fs.readFile(join(__dirname, 'templates', 'claude-flow.bat'), 'utf8');
-    },
-    'claude-flow.ps1': async () => {
-      return await fs.readFile(join(__dirname, 'templates', 'claude-flow.ps1'), 'utf8');
-    },
+    // Removed Windows wrapper templates per user request
   };
 
   const generator = templateGenerators[filename] || templateGenerators[filename.replace(/\.(sparc|minimal|optimized|enhanced)$/, '')];

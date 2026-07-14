@@ -30,15 +30,6 @@ if (args.length === 0) {
 for (const arg of args) {
   if (arg === '--version' || arg === '-v') {
     console.log(`v${VERSION}`);
-    console.log('');
-    console.log('⚡ Alpha 91 - Claude Code Task Tool Integration Update');
-    console.log('  • Enhanced CLAUDE.md - Clear guidance for Task tool concurrent agent execution');
-    console.log('  • Updated Swarm Prompts - Emphasizes Claude Code Task tool for actual work');
-    console.log('  • Improved Hive Mind - Better separation of MCP coordination vs Task execution');
-    console.log('  • Batch Operations - Stronger emphasis on TodoWrite & Task tool batching');
-    console.log('  • Concurrent Patterns - Clear examples of parallel agent spawning');
-    console.log('');
-    console.log('📚 Docs: https://github.com/ruvnet/claude-flow');
     process.exit(0);
   }
 }
